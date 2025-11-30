@@ -33,6 +33,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Mobile Menu Toggle Logic
     setupMobileMenu();
 
+    // Inject Favicon centrally
+    injectFavicon();
+
     // Render icons last
     lucide.createIcons();
 });
@@ -44,6 +47,23 @@ function getRootPath() {
         return '../../';
     }
     return '';
+}
+
+// --- FAVICON INJECTOR ---
+function injectFavicon() {
+    const root = getRootPath();
+    // Look for favicon.ico in the ROOT directory (standard practice)
+    const faviconPath = `${root}favicon.ico`;
+    
+    let link = document.querySelector("link[rel~='icon']");
+    if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        link.type = 'image/x-icon'; // Specific type helper
+        document.head.appendChild(link);
+    }
+    // Add a timestamp to prevent caching issues during development
+    link.href = faviconPath + '?v=' + new Date().getTime();
 }
 
 // --- LAYOUT ADJUSTMENT ---
@@ -452,6 +472,18 @@ function initPrograms() {
 function filterPrograms(cause) {
     const filtered = cause === 'All' ? PROGRAMS_DATA : PROGRAMS_DATA.filter(p => p.cause === cause);
     document.getElementById('programs-grid').innerHTML = filtered.map(p => createProgramCard(p)).join('');
+    
+    // Update active button state
+    document.querySelectorAll('#cause-filters button').forEach(btn => {
+        if((cause === 'All' && btn.id === 'filter-all') || btn.getAttribute('data-cause') === cause) {
+            btn.classList.remove('bg-white', 'text-gray-600', 'hover:bg-gray-50');
+            btn.classList.add('bg-[#E85D04]', 'text-white');
+        } else {
+            btn.classList.add('bg-white', 'text-gray-600', 'hover:bg-gray-50');
+            btn.classList.remove('bg-[#E85D04]', 'text-white');
+        }
+    });
+
     lucide.createIcons();
 }
 
